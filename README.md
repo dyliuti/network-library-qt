@@ -47,9 +47,9 @@ getBytesData(): 获取请求返回的字节流数据
 getJsonObject(): 获取请求返回的json对象数据，用于非规范的服务返回数据
 
 
-通过现在的Net::Result类，可简化EeoHttpResponseParser中的结果解析，并将所有结果解析只在业务层处理。
+- 上传示例。
 
-QString url = "www.baidu.com";
+    QString url = "www.baidu.com";
     QJsonObject params;
     std::vector<UploadResourceParamPtr> resourceParams;
     QPixmap pixmap = QPixmap();
