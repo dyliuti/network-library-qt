@@ -1,10 +1,12 @@
 - [网络库使用说明](#网络库使用说明)
-      - [请求结果处理说明](#请求结果处理说明)
-      - [Get: 组装好url，获取对应Task就可以了。](#get-组装好url获取对应task就可以了)
-      - [Post示例：以application/x-www-form-urlencoded为例](#post示例以applicationx-www-form-urlencoded为例)
-      - [下载示例: 传保存路径下载到本地，不传下载到缓存](#下载示例-传保存路径下载到本地不传下载到缓存)
-      - [上传示例：](#上传示例)
-    - [子线程或线程池中执行请求说明](#子线程或线程池中执行请求说明)
+  - [请求结果处理说明](#请求结果处理说明)
+  - [请求调用示例](#请求调用示例)
+    - [Get: 组装好url，获取对应Task就可以了。](#get-组装好url获取对应task就可以了)
+    - [Post示例：以application/x-www-form-urlencoded为例](#post示例以applicationx-www-form-urlencoded为例)
+    - [下载示例: 传保存路径下载到本地，不传保存路径下载到缓存](#下载示例-传保存路径下载到本地不传保存路径下载到缓存)
+    - [上传示例：](#上传示例)
+  - [子线程或线程池中执行请求说明](#子线程或线程池中执行请求说明)
+
 
 # 网络库使用说明
 
@@ -32,10 +34,11 @@ Net::是基于多态编写的网络库。Net::Task是请求基类，集合了请
 
 1. 是否开启线程池执行任务 setThreadPoolEnable。默认true开启。如果调用上传类时就已经在线程中，可以将其设置为false。
 
-#### 请求结果处理说明
+## 请求结果处理说明
 
 推荐使用task->run()回调方式获取结果。若没有或无需caller（即第一个参数this，父对象检测有效性）时，才使用futrue方式。
-通过回调或future或连接信号得到请求结果result后，是否成功所有请求判断一样，isSucess代表网络正常+前端返回的字段正常 如下
+通过回调或future或连接信号得到请求结果result后，是否成功所有请求判断一样，isSucess代表网络正常+服务返回的数据正常
+errorMsg()表示各请求对应的错误信息，因此isSuccess(),errorMsg是虚函数，各个请求对应的这两个方法需根据自已公司情况重写，重写后各请求使用、结果判断、处理都统一，如下：
 
 ```c++
 task->run(this, [=](Net::ResultPtr result) {    // 通过回调
@@ -55,7 +58,8 @@ getBytesData(): 获取请求返回的字节流数据
 getJsonObject(): 获取请求返回的json对象数据，用于非规范的服务返回数据
 errorMsg(): 获取具体的错误信息，每个请求类对应的结果类中可重写(根据自已公司返回的数据格式)，从而通过多态达到请求结果处理一致效果
 
-#### Get: 组装好url，获取对应Task就可以了。
+## 请求调用示例
+### Get: 组装好url，获取对应Task就可以了。
 
   ```c++
     QString url = "https://www.baidu.com";
@@ -71,7 +75,7 @@ errorMsg(): 获取具体的错误信息，每个请求类对应的结果类中�
     });
   ```
 
-#### Post示例：以application/x-www-form-urlencoded为例
+### Post示例：以application/x-www-form-urlencoded为例
 
   ```c++
     QString url = "https://www.baidu.com";
@@ -87,7 +91,7 @@ errorMsg(): 获取具体的错误信息，每个请求类对应的结果类中�
     });
   ```
 
-#### 下载示例: 传保存路径下载到本地，不传下载到缓存
+### 下载示例: 传保存路径下载到本地，不传保存路径下载到缓存
 
   ```c++
     QString url = "https://www.baidu.com";
@@ -104,7 +108,7 @@ errorMsg(): 获取具体的错误信息，每个请求类对应的结果类中�
     });
   ```
 
-#### 上传示例：
+### 上传示例：
   ```c++
     QString url = "www.baidu.com";
     QJsonObject params;
@@ -130,7 +134,7 @@ errorMsg(): 获取具体的错误信息，每个请求类对应的结果类中�
     });
 ```
 
-### 子线程或线程池中执行请求说明
+## 子线程或线程池中执行请求说明
 
 Net::Util可以在线程中执行，使用run的回调可以保证结果是在调用者线程中处理。但future不一定能保证，得具体场景具体分析。
 
