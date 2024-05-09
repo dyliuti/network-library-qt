@@ -14,11 +14,11 @@ Net::Util中帮用户管理了请求类的生命周期，提供给用户所有�
 
 Net::Result是请求结果基类。所有请求结果接口行为一致，是否成功用isSuccess(), 失败获取错误信息用errorMsg()。
 
-Net::是基于多态编写的网络库。Net::Task是请求基类，集合了请求的通用功能。用户请求时只需要从Net::Util获取对应的请求类，1.构造url、参数，2.设置需要的请求功能(可选)；3.通过run中传入回调或Future或连接sigTaskOver信号对结果进行处理即可。
+Net::是基于多态编写的网络库。Net::Task是请求基类，集合了请求的通用功能。用户请求时只需要从Net::Util获取对应的请求类，1.构造url、参数，2.设置需要的请求功能(可选)；3.通过run中传入回调或Future对结果进行处理即可。
 
 通用能力如下(在基类Net::Task中)：
 
-1. 是否设置缓存 setCacheEnable。默认false。即之前的白名单，设置了缓存下次请求打开文件很快。
+1. 是否设置缓存 setCacheEnable。默认false。设置了缓存下次请求会很快（如下载就不需要再从网络重新下载了）。
 2. 超时重传次数 setRerequestCount。默认不重传
 3. 超时时间 setTimeout。默认为0，不主动断开。超时后主动结束请求
 4. 断开请求 abort。
@@ -64,7 +64,7 @@ errorMsg(): 获取具体的错误信息，每个请求类对应的结果类中�
   ```c++
     QString url = "https://www.baidu.com";
     /*** 请求能力设置可选 ***/
-    auto task = Net::Util::GetInstance().getGetTask(url); 
+    auto task = Net::Util::instance().getGetTask(url); 
     task->run(this, [=](Net::ResultPtr result) { // 3.通用请求结果处理
         if (!result->isSuccess()) { // 通用请求结果处理
             // 请求错误
@@ -80,7 +80,7 @@ errorMsg(): 获取具体的错误信息，每个请求类对应的结果类中�
   ```c++
     QString url = "https://www.baidu.com";
     /*** 请求能力设置可选 ***/
-    auto task = Net::Util::GetInstance().getPostByUrlEncodeTask(url); 
+    auto task = Net::Util::instance().getPostByUrlEncodeTask(url); 
     task->run(this, [=](Net::ResultPtr result) { 
         if (!result->isSuccess()) { // 通用请求结果处理
             // 请求错误
@@ -97,7 +97,7 @@ errorMsg(): 获取具体的错误信息，每个请求类对应的结果类中�
     QString url = "https://www.baidu.com";
     QString savePath = "";
     /*** 请求能力设置可选 ***/
-    auto task = Net::Util::GetInstance().getDownloadTask(url, savePath); 
+    auto task = Net::Util::instance().getDownloadTask(url, savePath); 
     task->run(this, [=](Net::ResultPtr result) { 
         if (!result->isSuccess()) { // 通用请求结果处理
             // 请求错误
@@ -166,7 +166,7 @@ auto thread = QThread::create([=]() {
 future 在then调用指定函数的时候，如果第一个参数传入继承自QObject类的指针，那么函数执行时候，所在的线程既是该指针所归属的线程，该调用方式如下
 
 ```C++
-auto future = Net::Util::GetInstance().getPostByJsonTask(url, params)->run();
+auto future = Net::Util::instance().getPostByJsonTask(url, params)->run();
 future.Then(this, [=](EeoNetworkResultPtr result) {}
 ```
 
