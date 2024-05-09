@@ -47,8 +47,8 @@ getBytesData(): 获取请求返回的字节流数据
 getJsonObject(): 获取请求返回的json对象数据，用于非规范的服务返回数据
 
 
-- 上传示例。
-
+#### 上传示例。
+  ```c++
     QString url = "www.baidu.com";
     QJsonObject params;
     std::vector<UploadResourceParamPtr> resourceParams;
@@ -66,7 +66,7 @@ getJsonObject(): 获取请求返回的json对象数据，用于非规范的服�
     task->run(this, [=](Net::ResultPtr result) {}); // 3.通用结果处理
 ```
 
-- Get: 组装好url，获取对应Task就可以了。
+#### Get: 组装好url，获取对应Task就可以了。
 
   ```c++
   QString url = "https://www.baidu.com";
