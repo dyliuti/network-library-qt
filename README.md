@@ -9,6 +9,7 @@
 
 
 # 网络库使用说明
+支持版本：Windows、Mac、linux平台。Qt5、Qt6所有版本都可以，
 
 Net::Util中帮用户管理了请求类的生命周期，提供给用户所有请求类的不同参数重载接口，用户按需进行获取。
 
@@ -28,7 +29,7 @@ Net::是基于多态编写的网络库。Net::Task是请求基类，集合了请
 
 1. 设置限速 setDownloadLimit。默认false。
 2. 是否开启下载速度计算 setCalcSpeed。默认false。开启后可连接sigDownloadSpeed进行速度显示
-3. 是否开启线程池执行任务 setThreadPoolEnable。默认true开启。如果调用下载类时就已经在线程中，可以将其设置为false。
+3. 是否开启线程池执行任务 setThreadPoolEnable（已禁掉该方法）
 
 上传类Net::UploadTask额外包含的能力：
 
