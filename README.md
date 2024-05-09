@@ -1,3 +1,11 @@
+- [网络库使用说明](#网络库使用说明)
+      - [请求结果处理说明](#请求结果处理说明)
+      - [Get: 组装好url，获取对应Task就可以了。](#get-组装好url获取对应task就可以了)
+      - [Post示例：以application/x-www-form-urlencoded为例](#post示例以applicationx-www-form-urlencoded为例)
+      - [下载示例: 传保存路径下载到本地，不传下载到缓存](#下载示例-传保存路径下载到本地不传下载到缓存)
+      - [上传示例：](#上传示例)
+    - [子线程或线程池中执行请求说明](#子线程或线程池中执行请求说明)
+
 # 网络库使用说明
 
 Net::Util中帮用户管理了请求类的生命周期，提供给用户所有请求类的不同参数重载接口，用户按需进行获取。
@@ -113,6 +121,7 @@ errorMsg(): 获取具体的错误信息，每个请求类对应的结果类中�
         // 上传进度业务代码
     });
     task->run(this, [=](Net::ResultPtr result) {if (!result->isSuccess()) { // 通用请求结果处理
+        if (!result->isSuccess()) { // 通用请求结果处理
             // 请求错误
             qInfo() << result->errorMsg();
             return;
@@ -121,3 +130,42 @@ errorMsg(): 获取具体的错误信息，每个请求类对应的结果类中�
     });
 ```
 
+### 子线程或线程池中执行请求说明
+
+Net::Util可以在线程中执行，使用run的回调可以保证结果是在调用者线程中处理。但future不一定能保证，得具体场景具体分析。
+
+线程中执行的任务需要加上QEventLoop，进行事件接收。如下,QThread::create也可替换为QThreadpool::globalInstatnce().start(lambada), lambdada中内容一致
+
+```C++
+auto thread = QThread::create([=]() {
+        QEventLoop eventLoop;
+        auto task = Net::Util::instance().getDownloadTask(url, savePath);
+        //    task->setDownloadLimit(1024 * 1024);
+        //        connect(task.get(), &Net::DownloadTask::sigTaskOver, &eventLoop, &QEventLoop::quit);
+        task->run(this, [=, &eventLoop](Net::ResultPtr result) {
+            if (!result->isSuccess()) { // 通用请求结果处理
+                // 请求错误
+                qInfo() << result->errorMsg();
+                return;
+            }
+            // 请求成功
+
+            eventLoop.quit(); // 连sigTaskOver退出事件循环，或在回调中退出， 二选一，future类似
+        });
+        eventLoop.exec();
+    });
+
+    connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+    thread->start();
+```
+
+future 在then调用指定函数的时候，如果第一个参数传入继承自QObject类的指针，那么函数执行时候，所在的线程既是该指针所归属的线程，该调用方式如下
+
+```C++
+auto future = Net::Util::GetInstance().getPostByJsonTask(url, params)->run();
+future.Then(this, [=](EeoNetworkResultPtr result) {}
+```
+
+其中this决定了函数的执行线程
+如果第一个参数没有传入任何值，那么运行的线程是和调用m_promise.setValue(result)时，所在的线程决定的
+涉及到多线程操作的时候，这一点还是需要注意的，需要清晰的知道自己每一行代码具体是执行在哪个线程之中，不然就可能出现和预期不一致的现象
