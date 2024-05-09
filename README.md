@@ -32,22 +32,70 @@ Net::是基于多态编写的网络库。Net::Task是请求基类，集合了请
 task->run(this, [=](Net::ResultPtr result) {    // 通过回调
 //auto future = task->run();                    // 通过future
 //future.Then(this, [=](Net::ResultPtr result) {
-    if (result->isSuccess()) {
-    	// 请求成功
-    } else {
+    if (!result->isSuccess()) { // 通用请求结果处理
         // 请求错误
-    }
+        qInfo() << result->errorMsg();
+        return;
+    } 
+    // 请求成功
 });
 ```
 
 数据获取，可以通过Net::Result中的数据转换接口获取，如
-
 getBytesData(): 获取请求返回的字节流数据
-
 getJsonObject(): 获取请求返回的json对象数据，用于非规范的服务返回数据
+errorMsg(): 获取具体的错误信息，每个请求类对应的结果类中可重写(根据自已公司返回的数据格式)，从而通过多态达到请求结果处理一致效果
 
+#### Get: 组装好url，获取对应Task就可以了。
 
-#### 上传示例。
+  ```c++
+    QString url = "https://www.baidu.com";
+    /*** 请求能力设置可选 ***/
+    auto task = Net::Util::GetInstance().getGetTask(url); 
+    task->run(this, [=](Net::ResultPtr result) { // 3.通用请求结果处理
+        if (!result->isSuccess()) { // 通用请求结果处理
+            // 请求错误
+            qInfo() << result->errorMsg();
+            return;
+        } 
+        // 请求成功
+    });
+  ```
+
+#### Post示例：以application/x-www-form-urlencoded为例
+
+  ```c++
+    QString url = "https://www.baidu.com";
+    /*** 请求能力设置可选 ***/
+    auto task = Net::Util::GetInstance().getPostByUrlEncodeTask(url); 
+    task->run(this, [=](Net::ResultPtr result) { 
+        if (!result->isSuccess()) { // 通用请求结果处理
+            // 请求错误
+            qInfo() << result->errorMsg();
+            return;
+        } 
+        // 请求成功
+    });
+  ```
+
+#### 下载示例: 传保存路径下载到本地，不传下载到缓存
+
+  ```c++
+    QString url = "https://www.baidu.com";
+    QString savePath = "";
+    /*** 请求能力设置可选 ***/
+    auto task = Net::Util::GetInstance().getDownloadTask(url, savePath); 
+    task->run(this, [=](Net::ResultPtr result) { 
+        if (!result->isSuccess()) { // 通用请求结果处理
+            // 请求错误
+            qInfo() << result->errorMsg();
+            return;
+        } 
+        // 请求成功
+    });
+  ```
+
+#### 上传示例：
   ```c++
     QString url = "www.baidu.com";
     QJsonObject params;
@@ -63,14 +111,12 @@ getJsonObject(): 获取请求返回的json对象数据，用于非规范的服�
     connect(task.get(), &Net::UploadTask::sigUploadProgress, this, [=](qint64 bytesReceived, qint64 bytesTotal) {
         // 上传进度业务代码
     });
-    task->run(this, [=](Net::ResultPtr result) {}); // 3.通用结果处理
+    task->run(this, [=](Net::ResultPtr result) {if (!result->isSuccess()) { // 通用请求结果处理
+            // 请求错误
+            qInfo() << result->errorMsg();
+            return;
+        } 
+        // 请求成功
+    });
 ```
 
-#### Get: 组装好url，获取对应Task就可以了。
-
-  ```c++
-  QString url = "https://www.baidu.com";
-  	/*** 请求能力设置可选 ***/
-      auto future = Net::Util::GetInstance().getGetTask(url)->run(); 
-      future.Then(this, [=](Net::ResultPtr result) {}// 3.通用的结果处理
-  ```
