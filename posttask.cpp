@@ -5,12 +5,12 @@ using namespace Net;
 /*** Post结果 ***/
 bool PostResult::isSuccess()
 {
-    return networkSuccess();
+    return networkSuccess() /*** && customize success judgmenets  ***/;
 }
 
 QString PostResult::errorMsg(const QString& customErrorMsg)
 {
-    // custom error msg
+    // customize error msg
     return "";
 }
 

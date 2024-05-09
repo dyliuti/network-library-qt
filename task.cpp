@@ -20,7 +20,7 @@ bool Result::isSuccess()
 
 QString Result::networkErrorMsg(const QString& customErrorMsg)
 {
-    // custom error msg
+    // customize error msg
     return "";
 }
 

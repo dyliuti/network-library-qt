@@ -3,12 +3,12 @@
 using namespace Net;
 bool GetResult::isSuccess()
 {
-    return networkSuccess();
+    return networkSuccess() /*** && customize success judgmenets  ***/;
 }
 
 QString GetResult::errorMsg(const QString& customErrorMsg)
 {
-    // custom error msg
+    // customize error msg
     return "";
 }
 
