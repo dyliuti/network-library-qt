@@ -44,7 +44,7 @@ errorMsg()表示各请求对应的错误信息，因此isSuccess(),errorMsg是�
 ```c++
 task->run(this, [=](Net::ResultPtr result) {    // 通过回调
 //auto future = task->run();                    // 通过future
-//future.Then(this, [=](Net::ResultPtr result) {
+//future.then(this, [=](Net::ResultPtr result) {
     if (!result->isSuccess()) { // 通用请求结果处理
         // 请求错误
         qInfo() << result->errorMsg();
@@ -146,7 +146,7 @@ auto thread = QThread::create([=]() {
         QEventLoop eventLoop;
         auto task = Net::Util::instance().getDownloadTask(url, savePath);
         //    task->setDownloadLimit(1024 * 1024);
-        //        connect(task.get(), &Net::DownloadTask::sigTaskOver, &eventLoop, &QEventLoop::quit);
+        //    connect(task.get(), &Net::DownloadTask::sigTaskOver, &eventLoop, &QEventLoop::quit);
         task->run(this, [=, &eventLoop](Net::ResultPtr result) {
             if (!result->isSuccess()) { // 通用请求结果处理
                 // 请求错误
@@ -168,7 +168,7 @@ future 在then调用指定函数的时候，如果第一个参数传入继承自
 
 ```C++
 auto future = Net::Util::instance().getPostByJsonTask(url, params)->run();
-future.Then(this, [=](EeoNetworkResultPtr result) {}
+future.then(this, [=](EeoNetworkResultPtr result) {}
 ```
 
 其中this决定了函数的执行线程
